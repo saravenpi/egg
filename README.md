@@ -21,9 +21,8 @@ Perfect for jumping into a project with editor, server, build, logs… already p
 ## Installation
 
 ```bash
-git clone https://github.com/saravenpi/egg.git
-chmod +x install.sh
-./install.sh
+# Quick install
+curl -fsSL https://raw.githubusercontent.com/saravenpi/egg/main/install.sh | bash
 ```
 
 Optional quality-of-life:
