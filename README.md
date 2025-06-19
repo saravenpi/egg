@@ -12,7 +12,7 @@ Perfect for jumping into a project with editor, server, build, logs… already p
 * **Zero dependencies** (Bash ≥ 4 + `tmux`)
 * Reads a **minimal, comment-friendly** layout syntax
   `tab_name : path/to/dir [command …]`
-* Falls back to a blank session if no `layout.conf` is found
+* Falls back to a blank session if no `egg.conf` is found
 * Auto-attaches (or switches) whether you’re already inside tmux or not
 * Names the session in one keystroke: `egg mysession`
 
@@ -53,11 +53,11 @@ logs    : /var/log
 ## Usage
 
 ```bash
-# in your project root (with layout.conf present)
+# in your project root (with egg.conf present)
 egg dev
 
 # custom file
-egg dev ./my-layout.conf
+egg dev ./my-other-layout.conf
 
 # no layout? still fine — opens / attaches a blank session
 egg scratch
@@ -72,7 +72,7 @@ Outside? It `attach`-es right in. Simple as eggs.
 
 ```bash
 # minimal example
-echo -e "code:.\nserver:./ python -m http.server" >layout.conf
+echo -e "code:.\nserver:./ python -m http.server" >egg.conf
 egg demo
 ```
 
