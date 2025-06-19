@@ -21,8 +21,9 @@ Perfect for jumping into a project with editor, server, build, logs… already p
 ## Installation
 
 ```bash
-git clone https://github.com/youruser/egg.git
-sudo install -m 755 egg/egg.sh /usr/local/bin/egg # or anywhere in $PATH
+git clone https://github.com/saravenpi/egg.git
+chmod +x install.sh
+./install.sh
 ```
 
 Optional quality-of-life:
