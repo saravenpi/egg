@@ -28,7 +28,7 @@ curl -fsSL https://raw.githubusercontent.com/saravenpi/egg/main/install.sh | bas
 Optional quality-of-life:
 
 ```bash
-alias e='egg' # two letters, endless convenience
+alias e='egg' # one letter, endless convenience
 ```
 
 ---
