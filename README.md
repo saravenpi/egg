@@ -20,8 +20,8 @@ Perfect for jumping into a project with editor, server, build, logs… already p
 
 ## Installation
 
+Paste this one line in your terminal:
 ```bash
-# Quick install
 curl -fsSL https://raw.githubusercontent.com/saravenpi/egg/main/install.sh | bash
 ```
 
