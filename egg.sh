@@ -59,25 +59,67 @@ for line in "${LINES[@]}"; do
     "$TMUX_BIN" new-window -t "$SESSION_NAME" -n "$NAME" -c "$PATH_EXPANDED"
   fi
 
-  # Handle command splitting on && for vertical panes
+  # Handle command splitting with mixed separators (&&, &&v, &&h)
   if [[ -n "$CMD" ]]; then
-    # Split commands on && and trim whitespace
-    IFS='&&' read -ra COMMANDS <<<"$CMD"
-    
-    # Execute first command in the main pane
-    if [[ -n "${COMMANDS[0]}" ]]; then
-      FIRST_CMD="$(xargs <<<"${COMMANDS[0]}")"
-      [[ -n "$FIRST_CMD" ]] && "$TMUX_BIN" send-keys -t "${SESSION_NAME}:${NAME}" -- "$FIRST_CMD" C-m
-    fi
-    
-    # Create vertical panes for additional commands
-    for ((i=1; i<${#COMMANDS[@]}; i++)); do
-      SPLIT_CMD="$(xargs <<<"${COMMANDS[i]}")"
-      if [[ -n "$SPLIT_CMD" ]]; then
-        "$TMUX_BIN" split-window -h -t "${SESSION_NAME}:${NAME}" -c "$PATH_EXPANDED"
-        "$TMUX_BIN" send-keys -t "${SESSION_NAME}:${NAME}" -- "$SPLIT_CMD" C-m
+    # Parse commands with different separators
+    parse_commands() {
+      local input="$1"
+      local -a commands=()
+      local -a split_types=()
+      
+      # Replace separators with unique markers to preserve split type info
+      local marked_input
+      marked_input="${input//&&h/§H§}"
+      marked_input="${marked_input//&&v/§V§}"
+      marked_input="${marked_input//&&/§V§}"  # Default && becomes vertical
+      
+      # Split on markers and rebuild command/split_type arrays
+      IFS='§' read -ra PARTS <<<"$marked_input"
+      local cmd=""
+      local split_type=""
+      
+      for part in "${PARTS[@]}"; do
+        if [[ "$part" == "H" ]]; then
+          split_type="h"
+        elif [[ "$part" == "V" ]]; then
+          split_type="v"
+        else
+          if [[ -n "$cmd" ]]; then
+            commands+=("$cmd")
+            split_types+=("$split_type")
+          fi
+          cmd="$part"
+        fi
+      done
+      
+      # Add the last command
+      if [[ -n "$cmd" ]]; then
+        commands+=("$cmd")
+        split_types+=("$split_type")
       fi
-    done
+      
+      # Execute first command in the main pane
+      if [[ -n "${commands[0]}" ]]; then
+        local first_cmd
+        first_cmd="$(xargs <<<"${commands[0]}")"
+        [[ -n "$first_cmd" ]] && "$TMUX_BIN" send-keys -t "${SESSION_NAME}:${NAME}" -- "$first_cmd" C-m
+      fi
+      
+      # Create panes for additional commands
+      for ((i=1; i<${#commands[@]}; i++)); do
+        local split_cmd
+        split_cmd="$(xargs <<<"${commands[i]}")"
+        if [[ -n "$split_cmd" ]]; then
+          local split_flag="-h"  # Default to vertical split (side by side)
+          [[ "${split_types[i]}" == "h" ]] && split_flag="-v"  # Horizontal split (stacked)
+          
+          "$TMUX_BIN" split-window "$split_flag" -t "${SESSION_NAME}:${NAME}" -c "$PATH_EXPANDED"
+          "$TMUX_BIN" send-keys -t "${SESSION_NAME}:${NAME}" -- "$split_cmd" C-m
+        fi
+      done
+    }
+    
+    parse_commands "$CMD"
   fi
 done
 
