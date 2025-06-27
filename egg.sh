@@ -59,7 +59,26 @@ for line in "${LINES[@]}"; do
     "$TMUX_BIN" new-window -t "$SESSION_NAME" -n "$NAME" -c "$PATH_EXPANDED"
   fi
 
-  [[ -n "$CMD" ]] && "$TMUX_BIN" send-keys -t "${SESSION_NAME}:${NAME}" -- "$CMD" C-m
+  # Handle command splitting on && for vertical panes
+  if [[ -n "$CMD" ]]; then
+    # Split commands on && and trim whitespace
+    IFS='&&' read -ra COMMANDS <<<"$CMD"
+    
+    # Execute first command in the main pane
+    if [[ -n "${COMMANDS[0]}" ]]; then
+      FIRST_CMD="$(xargs <<<"${COMMANDS[0]}")"
+      [[ -n "$FIRST_CMD" ]] && "$TMUX_BIN" send-keys -t "${SESSION_NAME}:${NAME}" -- "$FIRST_CMD" C-m
+    fi
+    
+    # Create vertical panes for additional commands
+    for ((i=1; i<${#COMMANDS[@]}; i++)); do
+      SPLIT_CMD="$(xargs <<<"${COMMANDS[i]}")"
+      if [[ -n "$SPLIT_CMD" ]]; then
+        "$TMUX_BIN" split-window -h -t "${SESSION_NAME}:${NAME}" -c "$PATH_EXPANDED"
+        "$TMUX_BIN" send-keys -t "${SESSION_NAME}:${NAME}" -- "$SPLIT_CMD" C-m
+      fi
+    done
+  fi
 done
 
 "$TMUX_BIN" select-window -t "${SESSION_NAME}:0"
