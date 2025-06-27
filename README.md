@@ -35,54 +35,71 @@ alias e='egg' # one letter, endless convenience
 
 ## Layout syntax
 
+A layout file is a list of tabs, one per line.
 ```conf
-# tab        path            command (optional)
-editor  : ./frontend         nvim
-api     : ./backend          nvim
-build   : ./                 make all -j4
-logs    : /var/log
+# tab_name : path/to/dir [optional command]
+editor: . nvim
+server: ./backend python -m http.server
 ```
 
-* **Colon separates** tab name and path (spaces around it don’t matter).
-* **First word** after the colon is the directory; **anything after** that is
-  sent verbatim to tmux (`send-keys … C-m`), so feel free to chain arguments.
+*   **Colon separates** the tab name from the rest of the line.
+*   The **first word** after the colon is the **directory** where commands will run.
+*   **Anything after the directory** is the command to execute.
+
+### Splitting Panes
+
+Chain commands to split a tab into multiple panes. `egg` uses special separators for this:
+
+*   `&&` or `&&v`: Creates a **vertical split** (a new pane to the right).
+*   `&&h`: Creates a **horizontal split** (a new pane below).
+
+The first command runs in the initial pane. Each subsequent command splits the *most recently created pane*.
+
+**Example:**
+```conf
+# One tab with editor, git, and system monitor
+dev: . nvim &&v git status &&h btm
+```
+This creates a `dev` tab with `nvim` on the left, `git status` in a pane on the right, and `btm` in a pane below `git status`.
 
 ---
 
 ## Usage
 
 ```bash
-# in your project root (with egg.conf present)
-egg dev
+# In your project root (with egg.conf)
+egg my-session
 
-# custom file
-egg dev ./my-other-layout.conf
+# Use a custom layout file
+egg my-session ./path/to/layout.conf
 
-# no layout? still fine — opens / attaches a blank session
+# No layout file? `egg` creates a blank session
 egg scratch
 ```
 
-Inside tmux already? `egg` will just `switch-client` for you.
-Outside? It `attach`-es right in. Simple as eggs.
+If you're already in a `tmux` session, `egg` will switch to the hatched session. If not, it will attach to it.
 
 ---
 
 ## Demo
 
+**1. Simple two-tab layout:**
 ```bash
-# minimal example
-echo -e "code:.\nserver:./ python -m http.server" >egg.conf
-egg demo
+echo -e "code: .
+logs: /var/log" > egg.conf
+egg my-project
 ```
+This gives you a `tmux` session with a `code` tab (in the current directory) and a `logs` tab.
 
-You’ll land in tmux:
-
+**2. Single tab with split panes:**
+```bash
+echo "dev: . nvim &&v git status &&h btm" > egg.conf
+egg my-dev-env
 ```
-[code]    — cwd .          — your editor maybe running
-[server]  — cwd ./         — python -m http.server already spinning
-```
+This creates one `dev` tab, split into three panes for your editor, git, and a monitoring tool, with each command running automatically.
 
 ---
+
 
 ## Compatibility
 
