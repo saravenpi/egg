@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SESSION_NAME="${1:-workspace}"
-LAYOUT_FILE="${2:-egg.conf}"
+LAYOUT_FILE="${2:-egg.yml}"
 
 TMUX_BIN="$(command -v tmux || true)"
 [[ -n "$TMUX_BIN" ]] || { echo "tmux not found." >&2; exit 1; }

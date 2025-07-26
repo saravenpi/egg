@@ -12,7 +12,7 @@ Perfect for jumping into a project with editor, server, build, logs… already p
 * **Zero dependencies** (Bash ≥ 4 + `tmux`)
 * Reads a **minimal, comment-friendly** layout syntax
   `tab_name : path/to/dir [command …]`
-* Falls back to a blank session if no `egg.conf` is found
+* Falls back to a blank session if no `egg.yml` is found
 * Auto-attaches (or switches) whether you’re already inside tmux or not
 * Names the session in one keystroke: `egg mysession`
 
@@ -67,11 +67,11 @@ This creates a `dev` tab with `nvim` on the left, `git status` in a pane on the 
 ## Usage
 
 ```bash
-# In your project root (with egg.conf)
+# In your project root (with egg.yml)
 egg my-session
 
 # Use a custom layout file
-egg my-session ./path/to/layout.conf
+egg my-session ./path/to/layout.yml
 
 # No layout file? `egg` creates a blank session
 egg scratch
@@ -86,14 +86,14 @@ If you're already in a `tmux` session, `egg` will switch to the hatched session.
 **1. Simple two-tab layout:**
 ```bash
 echo -e "code: .
-logs: /var/log" > egg.conf
+logs: /var/log" > egg.yml
 egg my-project
 ```
 This gives you a `tmux` session with a `code` tab (in the current directory) and a `logs` tab.
 
 **2. Single tab with split panes:**
 ```bash
-echo "dev: . nvim &&v git status &&h btm" > egg.conf
+echo "dev: . nvim &&v git status &&h btm" > egg.yml
 egg my-dev-env
 ```
 This creates one `dev` tab, split into three panes for your editor, git, and a monitoring tool, with each command running automatically.
